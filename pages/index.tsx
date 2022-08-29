@@ -1,8 +1,13 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
+import { useState } from 'react'
 import styles from '../styles/Home.module.css'
 
-export function Home({currencies}: any) {
+export function Home({currencies}: any, {convertedCurrency}: any) {
+  const [value, setValue] = useState<Number>(0)
+  const [convertFrom, setConvertFrom] = useState<String>('')
+  const [convertTo, setConvertTo] = useState<String>('')
+
   return (
     <div>
       <Head>
@@ -16,12 +21,12 @@ export function Home({currencies}: any) {
         <form action="">
           <div className="form-group">
             <label htmlFor="" className="form-label">Valor</label>
-            <input className='form-control' type="number" name="value" />
+            <input className='form-control' type="number" name="value" value={value} onInput={e => setValue(e.target.value)}/>
           </div>
 
           <div className="form-group">
             <label htmlFor="" className="form-label">Converter de:</label>
-            <select className='form-control' name="" id="">
+            <select className='form-control' name="convertFrom" value={convertFrom} onChange={(e) => {setConvertFrom(e.target.value)}}>
               <option value="">Selecione uma moeda</option>
               {
                 currencies.map((currency: any) => (
@@ -33,7 +38,7 @@ export function Home({currencies}: any) {
 
           <div className="form-group">
             <label htmlFor="" className="form-label">Converter para:</label>
-            <select className='form-control' name="" id="">
+            <select className='form-control' name="convertTo" value={convertTo} onChange={(e) => {setConvertTo(e.target.value)}}>
               <option value="">Selecione uma moeda</option>
               {
                 currencies.map((currency: any) => (
@@ -43,19 +48,30 @@ export function Home({currencies}: any) {
             </select>
           </div>
 
-          <button type='button' className="btn btn-md btn-primary mt-5">Converter</button>
+          <button onClick={() => convertCurrency(convertFrom, convertTo, value)} type='button' className="btn btn-md btn-primary mt-5">Converter</button>
         </form>
+
+        <h5>Valor convertido:{convertedCurrency}</h5>
       </div>
     </div>
   )
 }
 
 export async function getServerSideProps() {
-  const res = await fetch(`https://economia.awesomeapi.com.br/json/available/uniq`)
-  const data = await res.json()
-  const currencies = Object.entries(data)
+  let res = await fetch(`https://economia.awesomeapi.com.br/json/available/uniq`)
+  let data = await res.json()
+  let currencies = Object.entries(data)
   //console.log(currencies)
   return { props: { currencies } }
+}
+
+async function convertCurrency(from: String, to: String, value: Number) {
+  let res = await fetch(`https://economia.awesomeapi.com.br/json/last/${from}-${to}`)
+  let data = await res.json()
+  let formatData = Object.entries(data)
+  let convertedCurrency = formatData[0][1].ask * value
+  console.log(convertedCurrency)
+  return {props: {convertedCurrency}}
 }
 
 export default Home
