@@ -7,6 +7,17 @@ export function Home({currencies}: any, {convertedCurrency}: any) {
   const [value, setValue] = useState<Number>(0)
   const [convertFrom, setConvertFrom] = useState<String>('')
   const [convertTo, setConvertTo] = useState<String>('')
+  const [convertedValue, setConvertedValue] = useState<number>(0)
+
+  async function convertCurrency(from: String, to: String, value: Number) {
+    let res = await fetch(`https://economia.awesomeapi.com.br/json/last/${from}-${to}`)
+    let data = await res.json()
+    let formatData = Object.entries(data)
+    let convertedCurrency = formatData[0][1].ask * value
+    setConvertedValue(convertedCurrency)
+    console.log(convertedCurrency)
+    return {props: {convertedCurrency}}
+  }
 
   return (
     <div>
@@ -48,10 +59,11 @@ export function Home({currencies}: any, {convertedCurrency}: any) {
             </select>
           </div>
 
-          <button onClick={() => convertCurrency(convertFrom, convertTo, value)} type='button' className="btn btn-md btn-primary mt-5">Converter</button>
+          <button onClick={() => convertCurrency(convertFrom, convertTo, value)} type='button' className="btn btn-md btn-primary my-2">Converter</button>
         </form>
 
-        <h5>Valor convertido:{convertedCurrency}</h5>
+        <h5>Valor convertido</h5>
+        <h4>{convertedValue}</h4>
       </div>
     </div>
   )
@@ -63,15 +75,6 @@ export async function getServerSideProps() {
   let currencies = Object.entries(data)
   //console.log(currencies)
   return { props: { currencies } }
-}
-
-async function convertCurrency(from: String, to: String, value: Number) {
-  let res = await fetch(`https://economia.awesomeapi.com.br/json/last/${from}-${to}`)
-  let data = await res.json()
-  let formatData = Object.entries(data)
-  let convertedCurrency = formatData[0][1].ask * value
-  console.log(convertedCurrency)
-  return {props: {convertedCurrency}}
 }
 
 export default Home
