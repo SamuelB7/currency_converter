@@ -4,12 +4,12 @@ import { useState } from 'react'
 import styles from '../styles/Home.module.css'
 
 export function Home({currencies}: any, {convertedCurrency}: any) {
-  const [value, setValue] = useState<Number>(0)
-  const [convertFrom, setConvertFrom] = useState<String>('')
-  const [convertTo, setConvertTo] = useState<String>('')
+  const [value, setValue] = useState<number>(0)
+  const [convertFrom, setConvertFrom] = useState<string>('')
+  const [convertTo, setConvertTo] = useState<string>('')
   const [convertedValue, setConvertedValue] = useState<number>(0)
 
-  async function convertCurrency(from: String, to: String, value: Number) {
+  async function convertCurrency(from: string, to: string, value: number) {
     let res = await fetch(`https://economia.awesomeapi.com.br/json/last/${from}-${to}`)
     let data = await res.json()
     let formatData = Object.entries(data)
