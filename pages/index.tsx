@@ -7,15 +7,23 @@ export function Home({currencies}: any, {convertedCurrency}: any) {
   const [value, setValue] = useState<number>(0)
   const [convertFrom, setConvertFrom] = useState<string>('')
   const [convertTo, setConvertTo] = useState<string>('')
-  const [convertedValue, setConvertedValue] = useState<number>(0)
+  const [convertedValue, setConvertedValue] = useState<number>()
 
   async function convertCurrency(from: string, to: string, value: number) {
-    let res = await fetch(`https://economia.awesomeapi.com.br/json/last/${from}-${to}`)
+    //let res = await fetch(`https://economia.awesomeapi.com.br/json/last/${from}-${to}`)
+    //let data = await res.json()
+    //let formatData = Object.entries(data)
+    //let convertedCurrency = formatData[0][1].ask * value
+
+    let res = await fetch(`https://api.apilayer.com/fixer/convert?to=${to}&from=${from}&amount=${value}`, {
+      method: 'GET',
+      headers: {
+        apikey : process.env.NEXT_PUBLIC_API_KEY
+      }
+    })
     let data = await res.json()
-    let formatData = Object.entries(data)
-    let convertedCurrency = formatData[0][1].ask * value
+    let convertedCurrency = data.result
     setConvertedValue(convertedCurrency)
-    console.log(convertedCurrency)
     return {props: {convertedCurrency}}
   }
 
@@ -31,12 +39,12 @@ export function Home({currencies}: any, {convertedCurrency}: any) {
         <h1>Currency Converter</h1>
         <form action="">
           <div className="form-group">
-            <label htmlFor="" className="form-label">Valor</label>
+            <label htmlFor="" className="form-label">Value</label>
             <input className='form-control' type="number" name="value" value={value} onInput={e => setValue(e.target.value)}/>
           </div>
 
           <div className="form-group">
-            <label htmlFor="" className="form-label">Converter de:</label>
+            <label htmlFor="" className="form-label">Convert from:</label>
             <select className='form-control' name="convertFrom" value={convertFrom} onChange={(e) => {setConvertFrom(e.target.value)}}>
               <option value="">Selecione uma moeda</option>
               {
@@ -48,7 +56,7 @@ export function Home({currencies}: any, {convertedCurrency}: any) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="" className="form-label">Converter para:</label>
+            <label htmlFor="" className="form-label">Convert to:</label>
             <select className='form-control' name="convertTo" value={convertTo} onChange={(e) => {setConvertTo(e.target.value)}}>
               <option value="">Selecione uma moeda</option>
               {
@@ -59,10 +67,10 @@ export function Home({currencies}: any, {convertedCurrency}: any) {
             </select>
           </div>
 
-          <button onClick={() => convertCurrency(convertFrom, convertTo, value)} type='button' className="btn btn-md btn-primary my-2">Converter</button>
+          <button onClick={() => convertCurrency(convertFrom, convertTo, value)} type='button' className="btn btn-md btn-primary my-2">Convert</button>
         </form>
 
-        <h5>Valor convertido</h5>
+        <h5>Converted value:</h5>
         <h4>{convertedValue}</h4>
       </div>
     </div>
@@ -70,10 +78,15 @@ export function Home({currencies}: any, {convertedCurrency}: any) {
 }
 
 export async function getServerSideProps() {
-  let res = await fetch(`https://economia.awesomeapi.com.br/json/available/uniq`)
+  //let res = await fetch(`https://economia.awesomeapi.com.br/json/available/uniq`)
+  let res = await fetch(`https://api.apilayer.com/fixer/symbols`, {
+    method: 'GET',
+    headers: {
+      apikey : process.env.NEXT_PUBLIC_API_KEY
+    }
+  })
   let data = await res.json()
-  let currencies = Object.entries(data)
-  //console.log(currencies)
+  let currencies = Object.entries(data.symbols)
   return { props: { currencies } }
 }
 
