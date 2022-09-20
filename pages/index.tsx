@@ -7,7 +7,7 @@ export function Home({currencies}: any, {convertedCurrency}: any) {
   const [value, setValue] = useState<number>(0)
   const [convertFrom, setConvertFrom] = useState<string>('')
   const [convertTo, setConvertTo] = useState<string>('')
-  const [convertedValue, setConvertedValue] = useState<number>()
+  const [convertedValue, setConvertedValue] = useState<string>()
 
   async function convertCurrency(from: string, to: string, value: number) {
     //let res = await fetch(`https://economia.awesomeapi.com.br/json/last/${from}-${to}`)
@@ -22,7 +22,7 @@ export function Home({currencies}: any, {convertedCurrency}: any) {
       }
     })
     let data = await res.json()
-    let convertedCurrency = data.result
+    let convertedCurrency = `$${data.result.toFixed(2)}`
     setConvertedValue(convertedCurrency)
     return {props: {convertedCurrency}}
   }
