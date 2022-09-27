@@ -15,6 +15,7 @@ export function Home({currencies}: any, {convertedCurrency}: any) {
     //let data = await res.json()
     //let formatData = Object.entries(data)
     //let convertedCurrency = formatData[0][1].ask * value
+    setConvertedValue(' ')
     setLoading(true)
 
     let res = await fetch(`https://api.apilayer.com/fixer/convert?to=${to}&from=${from}&amount=${value}`, {
