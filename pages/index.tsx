@@ -7,13 +7,15 @@ export function Home({currencies}: any, {convertedCurrency}: any) {
   const [value, setValue] = useState<number>(0)
   const [convertFrom, setConvertFrom] = useState<string>('')
   const [convertTo, setConvertTo] = useState<string>('')
-  const [convertedValue, setConvertedValue] = useState<string>()
+  const [convertedValue, setConvertedValue] = useState<string>(' ')
+  const [loading, setLoading] = useState<boolean>(false)
 
   async function convertCurrency(from: string, to: string, value: number) {
     //let res = await fetch(`https://economia.awesomeapi.com.br/json/last/${from}-${to}`)
     //let data = await res.json()
     //let formatData = Object.entries(data)
     //let convertedCurrency = formatData[0][1].ask * value
+    setLoading(true)
 
     let res = await fetch(`https://api.apilayer.com/fixer/convert?to=${to}&from=${from}&amount=${value}`, {
       method: 'GET',
@@ -23,6 +25,7 @@ export function Home({currencies}: any, {convertedCurrency}: any) {
     })
     let data = await res.json()
     let convertedCurrency = `$${data.result.toFixed(2)}`
+    setLoading(false)
     setConvertedValue(convertedCurrency)
     return {props: {convertedCurrency}}
   }
@@ -46,7 +49,7 @@ export function Home({currencies}: any, {convertedCurrency}: any) {
           <div className="form-group">
             <label htmlFor="" className="form-label">Convert from:</label>
             <select className='form-control' name="convertFrom" value={convertFrom} onChange={(e) => {setConvertFrom(e.target.value)}}>
-              <option value="">Selecione uma moeda</option>
+              <option value="">Select a currency</option>
               {
                 currencies.map((currency: any) => (
                   <option key={currency[0]} value={currency[0]}>{currency[1]}</option>
@@ -58,7 +61,7 @@ export function Home({currencies}: any, {convertedCurrency}: any) {
           <div className="form-group">
             <label htmlFor="" className="form-label">Convert to:</label>
             <select className='form-control' name="convertTo" value={convertTo} onChange={(e) => {setConvertTo(e.target.value)}}>
-              <option value="">Selecione uma moeda</option>
+              <option value="">Select a currency</option>
               {
                 currencies.map((currency: any) => (
                   <option key={currency[0]} value={currency[0]}>{currency[1]}</option>
@@ -70,8 +73,22 @@ export function Home({currencies}: any, {convertedCurrency}: any) {
           <button onClick={() => convertCurrency(convertFrom, convertTo, value)} type='button' className="btn btn-md btn-primary my-2">Convert</button>
         </form>
 
-        <h5>Converted value:</h5>
-        <h4>{convertedValue}</h4>
+        {loading == true ?
+          <div>
+            <img className={styles.loading} src="Rolling.svg" />
+          </div>
+          : <div></div>
+        }
+
+        {convertedValue == ' ' ?
+          <div></div>
+          :
+          <div>
+            <h5>Converted value:</h5>
+            <h4>{convertedValue}</h4>
+          </div>
+        }
+        
       </div>
     </div>
   )
