@@ -3,8 +3,12 @@ import Head from 'next/head'
 import { useState } from 'react'
 import styles from '../styles/Home.module.css'
 import Select from 'react-select'
+import Error from 'next/error'
 
-export function Home({currencies}: any, {convertedCurrency}: any) {
+export function Home({currencies, errorCode}: any) {
+  if (errorCode) {
+    return <Error title='Error, try again later' statusCode={errorCode} />
+  }
   const [value, setValue] = useState<number>(0)
   const [convertFrom, setConvertFrom] = useState<string>('')
   const [convertTo, setConvertTo] = useState<string>('')
@@ -22,7 +26,7 @@ export function Home({currencies}: any, {convertedCurrency}: any) {
     let res = await fetch(`https://api.apilayer.com/fixer/convert?to=${to}&from=${from}&amount=${value}`, {
       method: 'GET',
       headers: {
-        apikey : process.env.NEXT_PUBLIC_API_KEY2
+        apikey : process.env.NEXT_PUBLIC_API_KEY
       }
     })
     let data = await res.json()
@@ -102,29 +106,33 @@ export function Home({currencies}: any, {convertedCurrency}: any) {
   )
 }
 
-/* export async function getServerSideProps() {
+export async function getServerSideProps() {
   //let res = await fetch(`https://economia.awesomeapi.com.br/json/available/uniq`)
   let res = await fetch(`https://api.apilayer.com/fixer/symbols`, {
     method: 'GET',
     headers: {
-      apikey : process.env.NEXT_PUBLIC_API_KEY2
+      apikey : process.env.NEXT_PUBLIC_API_KEY
     }
   })
-  let data = await res.json()
-  let currencies = Object.entries(data.symbols)
-  return { props: { currencies } }
-} */
-
-export const getStaticProps: GetStaticProps = async () => {
-  let res = await fetch(`https://api.apilayer.com/fixer/symbols`, {
-    method: 'GET',
-    headers: {
-      apikey : process.env.NEXT_PUBLIC_API_KEY2
-    }
-  })
+  if(res.ok == false) {
+    let errorCode = res.status
+    return { props: { errorCode } }
+  }
   let data = await res.json()
   let currencies = Object.entries(data.symbols)
   return { props: { currencies } }
 }
+
+/* export const getStaticProps: GetStaticProps = async () => {
+  let res = await fetch(`https://api.apilayer.com/fixer/symbols`, {
+    method: 'GET',
+    headers: {
+      apikey : process.env.NEXT_PUBLIC_API_KEY
+    }
+  })
+  let data = await res.json()
+  let currencies = Object.entries(data.symbols)
+  return { props: { currencies, errorCode } }
+} */
 
 export default Home
